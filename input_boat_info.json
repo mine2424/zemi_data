@@ -1,0 +1,88 @@
+{
+  "1":{
+    "excelFile": "2020年6月7日",
+    "txtFile": "K200607",
+    "urlList": [
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=24&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=22&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=21&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=20&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=19&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=18&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=17&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=16&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=14&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=09&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=05&hd=20200607",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=03&hd=20200607"
+    ],
+    "raceRankList": [
+      "G1",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "G1",
+      "一般",
+      "一般",
+      "G3"
+    ]
+  },
+  "2":{
+    "excelFile": "2020年6月8日",
+    "txtFile": "K200608",
+    "urlList": [
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=24&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=21&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=19&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=17&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=16&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=14&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=10&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=09&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=05&hd=20200608",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=01&hd=20200608"
+    ],
+    "raceRankList": [
+      "G1",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "G1",
+      "一般",
+      "一般",
+      "一般",
+      "一般"
+    ]
+  },
+  "3":{
+    "excelFile": "2020年6月9日",
+    "txtFile": "K200609",
+    "urlList": [
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=24&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=21&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=19&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=16&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=14&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=10&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=09&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=05&hd=20200609",
+      "https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=01&hd=20200609"
+    ],
+    "raceRankList": [
+      "G1",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般",
+      "一般"
+    ]
+  }
+}

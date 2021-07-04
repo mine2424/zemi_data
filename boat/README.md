@@ -4,10 +4,10 @@
 まずpythonが入っている前提で進めていきます。
 
 1. 以下のコマンドを入力して、モジュールをインストールしてください
- - `pip3 install beautifulsoup4`
- - `pip3 install lxml`
- - `pip3 install openpyxl`
- - `pip3 install requests`
+ - `pip install beautifulsoup4`
+ - `pip install lxml`
+ - `pip install openpyxl`
+ - `pip install requests`
 
 2. input_boat_info.jsonに追加したいデータを指定します。
 
@@ -47,6 +47,6 @@ urlListやraceRankListの最後の要素には`,`を付けないようにしま�
 
 3. 書き込みをしたいexcelファイルをexcel_dataのフォルダに入れます。
 
-4.最後に確認ができたら、`python3 main.py`というコマンドを実行して待つだけで完成です。
+4.最後に確認ができたら、`python main.py`というコマンドを実行して待つだけで完成です。
 
 ```

@@ -22,7 +22,6 @@ def generate_common_race_list(data: str):
         if 'H' in elm:
           newList.append(elm)
           isPassedCourse = True
-        
     else:
       if not "風" in elm and not "波" in elm:
         if "m" in elm:
@@ -32,6 +31,7 @@ def generate_common_race_list(data: str):
             newList.append(elm.replace("m",""))
         else:
           newList.append(elm)
+
   
   return newList
 
@@ -255,7 +255,7 @@ def scrapingOnetournament(url: str, requestCount: int):
 # =========== other def =============================================
 
 def generate_other_boat_data(placeTour: list,reservedRaceRank: list):
-  raceRankDict = {"SG" : [1,0,0,0,0], "G1" : [0,1,0,0,0], "G2" : [0,0,1,0,0], "G3" : [0,0,0,1,0], "一般" : [0,0,0,0,1]}
+  raceRankDict = {"SG" : [1,0,0,0,0], "G1" : [0,1,0,0,0], "G2" : [0,0,1,0,0], "G3" : [0,0,0,1,0], "GE" : [0,0,0,0,1]}
   existPlace = False
   tourCount = 0
   tourSum = 2

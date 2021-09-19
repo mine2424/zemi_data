@@ -16,14 +16,12 @@ class Block:
         sha.update((str(self.index) + str(self.timestamp) + str(self.data) + str(self.previous_hash)).encode('utf-8'))
         return sha.hexdigest()
 
-
 def next_block(last_block):
     this_index = last_block.index + 1
     this_timestamp = date.datetime.now()
     this_data = "Hey! I'm block " + str(this_index)
     this_hash = last_block.hash
     return Block(this_index, this_timestamp, this_data, this_hash)
-
 
 # ブロックチェーンの最初のブロックを、インデックスが0で、任意の前のハッシュを持つように手動で作成します。
 blockchain = [Block(0, date.datetime.now(), "Genesis Block", "0")]

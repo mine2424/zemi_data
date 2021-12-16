@@ -2,20 +2,67 @@
 import requests
 from bs4 import BeautifulSoup
 import datetime
+from time import sleep
+from urllib.error import HTTPError
+from urllib.error import URLError
 
-
+err_count = 0
 def requested_url(reqUrl: str):
-    res = requests.get(reqUrl)
-    res.encoding = res.apparent_encoding
-
-    return BeautifulSoup(res.text, "lxml")
+    stand_by_sec = 5
+    try:
+        res = requests.get(reqUrl)
+    except HTTPError as e:
+        #エラーの場合の処理
+        print(f'an error ocurred: {e}')
+        
+    except URLError:
+        #エラーの場合の処理
+        print("URLに接続するが処理できない")
+        
+    except ConnectionError:
+        print("通信エラーです。再接続します。")
+        sleep(stand_by_sec)
+        requested_url(reqUrl)
+        err_count += 1
+        
+    except ConnectionResetError:
+        # TODO: 該当エラー年月（190222 8/13, 190622 9/13）
+        print("強制的にssl接続が切断されました。再接続します。")
+        sleep(stand_by_sec)
+        requested_url(reqUrl)
+        err_count += 1
+        
+    except requests.exceptions.ConnectTimeout:
+        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+        sleep(stand_by_sec)
+        requested_url(reqUrl)
+        err_count += 1
+        
+    except requests.exceptions.ReadTimeout:
+        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+        sleep(stand_by_sec)
+        requested_url(reqUrl)
+        err_count += 1
+        
+    except:
+        if err_count < 2:
+            print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+            sleep(stand_by_sec)
+            requested_url(reqUrl)
+            err_count += 1
+    else:
+        return BeautifulSoup(res.text, "lxml")
 
 
 def scraping_odd_weight_data_by_round(roundTag: str):
-    # TODO: request数が多いので減らせるように修正する
     detailRound = requested_url(roundTag)
     roundPage = detailRound.find("ul", class_="tab3_tabs")
-    spans = roundPage.find_all("a")
+    if roundPage is None:
+        # TODO: 該当のエラー年月(180224 13/19, 181122 1/13, 190319 4/12, 200318 13/15)
+        print(f'round page: {roundPage}')
+        return [], []
+    else:
+        spans = roundPage.find_all("a")
 
     oddAndInfoUrlList: str = []
 
@@ -26,23 +73,36 @@ def scraping_odd_weight_data_by_round(roundTag: str):
     oddUrl = oddAndInfoUrlList[0].replace("odds3t", "oddstf")
 
     oddPage = requested_url(oddUrl)
-    oddPoints = oddPage.find_all("td", class_="oddsPoint")
+    if oddPage is None:
+        print(f'oddPage: {oddPage}')
+        return [], []
+    else:
+        oddPoints = oddPage.find_all("td", class_="oddsPoint")
 
     oddPointsList = []
+    weightList = []
 
     for index, point in enumerate(oddPoints):
         if index < 6:
             oddPointsList.append(point.text)
 
     detailInfoPage = requested_url(oddAndInfoUrlList[1])
-    weightPage = detailInfoPage.find("table", class_="is-w748")
-    weightTable = weightPage.find_all("td")
+    if detailInfoPage is None:
+        print(f'detailInfoPage: {detailInfoPage}')
+        return oddPointsList, weightList
+    else:
+        weightPage = detailInfoPage.find("table", class_="is-w748")
 
-    weightList = []
-
-    for weight in weightTable:
-        if "kg" in weight.text:
-            weightList.append(weight.text)
+    # TODO: 該当のエラー年月(180320 8/12, 180721 3/13, 200222 7/14, 201121 4/15)
+    if weightPage is None:
+        print(f'weight page: {weightPage}')
+        return oddPointsList, weightList
+    else:
+        weightTable = weightPage.find_all("td")
+    
+        for weight in weightTable:
+            if "kg" in weight.text:
+                weightList.append(weight.text)
 
     return oddPointsList, weightList
 
@@ -108,7 +168,27 @@ def generate_all_tournament_url(start: datetime.date, end: datetime.date):
         if current_time == end:
             break
         current_time += datetime.timedelta(days=1)
-    return tour_url_list
+    
+    all_tour_url_list_by_month = []
+    tour_url_list_by_month = []
+    
+    preMonth = tour_url_list[0][-4:-2]
+    
+    for i in range(len(tour_url_list)):
+        if tour_url_list[i][-4:-2] != preMonth:
+            all_tour_url_list_by_month.append(tour_url_list_by_month)
+            
+            tour_url_list_by_month = []
+            tour_url_list_by_month.append(tour_url_list[i])
+        elif i == len(tour_url_list)-1:
+            tour_url_list_by_month.append(tour_url_list[len(tour_url_list)-1])
+            all_tour_url_list_by_month.append(tour_url_list_by_month)
+        else:
+            tour_url_list_by_month.append(tour_url_list[i])
+
+        preMonth = tour_url_list[i][-4:-2]
+
+    return all_tour_url_list_by_month
 
 
 def scraping_tournament_rank(tbody):
@@ -182,11 +262,17 @@ def scraping_tournament_url_by_day(url: str, round_list_by_day: list):
     tour_series_list.reverse()
     time_zone_list.reverse()
 
+    pop_elm_count = 0
+    # TODO: 中止になったデータだけurlがないか、飛ばされているので
     # 中止となったレース分の時間帯、シリーズの要素を消すようにする(tour_series_list, time_zone_list)
     for i, round_index in enumerate(round_list_by_day):
         if round_index == -1:
-            rank_list.pop(i)
-            tour_series_list.pop(i)
-            time_zone_list.pop(i)
+            tour_url_list.pop(i - pop_elm_count)
+            rank_list.pop(i - pop_elm_count)
+            tour_series_list.pop(i - pop_elm_count)
+            time_zone_list.pop(i - pop_elm_count)
+            pop_elm_count += 1
+    
+    print(f'rank_list: {rank_list}')
 
     return tour_url_list, rank_list, tour_series_list, time_zone_list

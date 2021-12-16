@@ -1,0 +1,19 @@
+log test.py
+
+
+pre_round_list_by_day: [12, 12, 12, 12, 12, 12, 12, 12, -1, 12, 12, 12]
+tour_url_list: [
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=24&hd=20180109', 
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=23&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=21&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=19&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=17&hd=20180109', 
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=15&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=14&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=13&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=09&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=07&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=06&hd=20180109',
+ 'https://www.boatrace.jp/owpc/pc/race/raceindex?jcd=03&hd=20180109'
+]
+af_round_list_by_day: [12, 12, 12, 12, 12, 12, 12, 12, -1, 12, 12, 12]

@@ -133,7 +133,7 @@ def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, s
     if indexElm != 0:
         columnCountMin = columnCount
         # １レース（6回分、for文が動く）
-        for raceResult in generate_race_result_list(datalist=datalist, indexElm=indexElm):
+        for j, raceResult in enumerate(generate_race_result_list(datalist=datalist, indexElm=indexElm)):
             intrusion = ".  ."
             st = ".  ."
             raceTime = ".  ."
@@ -192,8 +192,8 @@ def count_round(data: list, round_count: int):
 
 
 # txtデータを読み込み、excelにデータを記入する
-def generate_one_day_race_result_list(sheet, name: str, column_count: int):
-    txtFile = f'../local_boat_data/{name}.TXT'
+def generate_one_day_race_result_list(sheet, time, name: str, column_count: int):
+    txtFile = f'../local_boat_data_{time}/{name}.TXT'
     f = open(txtFile, 'r', encoding='shift_jis')
     datalist = f.readlines()
     f.close()
@@ -252,10 +252,9 @@ def generate_one_day_race_result_list(sheet, name: str, column_count: int):
                     txtFile=name,
                     datalist=datalist,
                 )
-    
+
     for i, rnd in enumerate(round_list_by_day):
         if rnd >= 13:
             round_list_by_day[i] = 12
-
     # 返り値にcolumn_count, round_list_by_dayをかえして全体のカウント数を管理する
     return tour_place_list, tour_name_list, column_count, round_list_by_day

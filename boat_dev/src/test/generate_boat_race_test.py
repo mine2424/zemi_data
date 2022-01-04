@@ -241,7 +241,6 @@ def generate_one_day_race_result_list(sheet, name: str, column_count: int):
         else:
             # 全てのラウンドが中止だったらそのトーナメントのデータをスキップする
             if round_count == -1:
-                # TODO: something
                 print(f'round_count is -1: {index}')
             else:
                 column_count = create_Excel_Data_from_Local_data(

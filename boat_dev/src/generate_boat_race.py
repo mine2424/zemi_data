@@ -17,8 +17,16 @@ def generate_common_race_list(data: str):
                 if elm == "進入固定":
                     # 一番初めに挿入する。
                     newList.insert(0, elm)
+
                 if 'H' in elm:
                     newList.append(elm)
+                    # TODO: "~R"から"進入固定"or"H~m"で範囲を切って文字列化する
+                    # これで優勝戦や予選等の情報を抜き取れる
+                    if "進入固定" in newList:
+                        newList.append(data[1:index - 1])
+                    else:
+                        newList.append(data[1:index])
+
                     isPassedCourse = True
         else:
             if not "風" in elm and not "波" in elm:
@@ -38,7 +46,7 @@ def generate_common_race_list(data: str):
 def generate_race_result_list(datalist: list, indexElm: int):
     allList = []
     for counter in range(6):
-        resultlist = datalist[indexElm+counter].split()
+        resultlist = datalist[indexElm + counter].split()
         generatedResultList = []
         playerName = []
 
@@ -49,7 +57,7 @@ def generate_race_result_list(datalist: list, indexElm: int):
                 generatedResultList.append(result)
             elif is_float(result):
                 generatedResultList.append(result)
-            elif dx == len(resultlist)-1:
+            elif dx == len(resultlist) - 1:
                 if result == '.':
                     generatedResultList.append(".  .")
                 else:
@@ -80,10 +88,47 @@ def is_float(s):
     return True if re.fullmatch(p, s) else False
 
 
-def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, sheet, txtFile, datalist: list):
+def create_Excel_Data_from_Local_data(
+    columnCount: int,
+    index: int,
+    data: str,
+    sheet,
+    txtFile,
+    datalist: list,
+):
     indexElm = 0
-    roundDict = {"着順": " ", "艇番": " ", "登録番号": " ", "選手名": " ", "オッズ": " ", "体重": " ", "ﾓｰﾀｰ": " ", "ﾎﾞｰﾄ": " ", "展示": " ", "進入": " ", "ST": " ", "ﾚｰｽﾀｲﾑ": " ", "進入固定": " ",
-                 "ラウンド": " ", "コース(m)": " ", "天気": " ", "風向": " ", "風速(m)": " ", "波(cm)": " ", "日付": " ", "開催場所": " ", "大会名": " ", "SG": " ", "G1": " ", "G2": " ", "G3": " ", "一般": " ", "時間帯": " ", "シリーズ": " "}
+    roundDict = {
+        "着順": " ",
+        "艇番": " ",
+        "登録番号": " ",
+        "選手名": " ",
+        "オッズ": " ",
+        "体重": " ",
+        "ﾓｰﾀｰ": " ",
+        "ﾎﾞｰﾄ": " ",
+        "展示": " ",
+        "進入": " ",
+        "ST": " ",
+        "ﾚｰｽﾀｲﾑ": " ",
+        "進入固定": " ",
+        "ラウンド": " ",
+        "コース(m)": " ",
+        "天気": " ",
+        "風向": " ",
+        "風速(m)": " ",
+        "波(cm)": " ",
+        "日付": " ",
+        "トーナメント名": " ",
+        "開催場所": " ",
+        "大会名": " ",
+        "SG": " ",
+        "G1": " ",
+        "G2": " ",
+        "G3": " ",
+        "一般": " ",
+        "時間帯": " ",
+        "シリーズ": " "
+    }
     # 進入固定のダミー変数
     fixedEnter = 0
 
@@ -92,33 +137,31 @@ def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, s
     if 'R' in data and index > 2:
         generatedData = generate_common_race_list(data.split())
         # generatedDataを出力してどの部分に「進入固定」があるか探す。
-        # print(generatedData) =>  ['7R', 'H1200m', '雨', '北東', '6', '10']
+        # 優勝戦等を追加すると print(generatedData) =>  ['7R', 'H1200m', '予選', '雨', '北東', '6', '10']
 
         if generatedData[0] == "進入固定":
             fixedEnter = 1
-            roundDict.update(
-                {
-                    "ラウンド": int(generatedData[1][:-1]),
-                    "コース(m)": generatedData[2][:-1],
-                    "天気": generatedData[3],
-                    "風向": generatedData[4],
-                    "風速(m)": int(generatedData[5]),
-                    "波(cm)": int(generatedData[6]),
-                    "日付": txtFile[3:],
-                }
-            )
+            roundDict.update({
+                "ラウンド": int(generatedData[1][:-1]),
+                "コース(m)": generatedData[2][:-1],
+                "天気": generatedData[4],
+                "風向": generatedData[5],
+                "風速(m)": int(generatedData[6]),
+                "波(cm)": int(generatedData[7]),
+                "日付": txtFile[3:],
+                "トーナメント名": "".join(generatedData[3])
+            })
         else:
-            roundDict.update(
-                {
-                    "ラウンド": int(generatedData[0][:-1]),
-                    "コース(m)": generatedData[1][:-1],
-                    "天気": generatedData[2],
-                    "風向": generatedData[3],
-                    "風速(m)": int(generatedData[4]),
-                    "波(cm)": int(generatedData[5]),
-                    "日付": txtFile[3:],
-                }
-            )
+            roundDict.update({
+                "ラウンド": int(generatedData[0][:-1]),
+                "コース(m)": generatedData[1][:-1],
+                "天気": generatedData[3],
+                "風向": generatedData[4],
+                "風速(m)": int(generatedData[5]),
+                "波(cm)": int(generatedData[6]),
+                "日付": txtFile[3:],
+                "トーナメント名": "".join(generatedData[2])
+            })
         indexElm = index + 3
 
     # データ項目名を取得(着順、選手名等)
@@ -133,7 +176,9 @@ def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, s
     if indexElm != 0:
         columnCountMin = columnCount
         # １レース（6回分、for文が動く）
-        for j, raceResult in enumerate(generate_race_result_list(datalist=datalist, indexElm=indexElm)):
+        for j, raceResult in enumerate(
+                generate_race_result_list(datalist=datalist,
+                                          indexElm=indexElm)):
             intrusion = ".  ."
             st = ".  ."
             raceTime = ".  ."
@@ -146,21 +191,19 @@ def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, s
             if raceResult[9:10]:
                 raceTime = raceResult[9]
 
-            roundDict.update(
-                {
-                    "着順": raceResult[1],
-                    "艇番": int(raceResult[2]),
-                    "登録番号": int(raceResult[3]),
-                    "選手名": raceResult[0],
-                    "ﾓｰﾀｰ": int(raceResult[4]),
-                    "ﾎﾞｰﾄ": raceResult[5],
-                    "展示": raceResult[6],
-                    "進入": intrusion,
-                    "ST": st,
-                    "ﾚｰｽﾀｲﾑ": raceTime,
-                    "進入固定": fixedEnter,
-                }
-            )
+            roundDict.update({
+                "着順": raceResult[1],
+                "艇番": int(raceResult[2]),
+                "登録番号": int(raceResult[3]),
+                "選手名": raceResult[0],
+                "ﾓｰﾀｰ": int(raceResult[4]),
+                "ﾎﾞｰﾄ": raceResult[5],
+                "展示": raceResult[6],
+                "進入": intrusion,
+                "ST": st,
+                "ﾚｰｽﾀｲﾑ": raceTime,
+                "進入固定": fixedEnter,
+            })
 
             # 横列のindex
             cellIndex = 1
@@ -174,26 +217,14 @@ def create_Excel_Data_from_Local_data(columnCount: int, index: int, data: str, s
 
     return columnCount
 
-
-def count_round(data: list, round_count: int):
-    cancel_word = data.split()[1]
-    if '12R' in data:
-        # 「中止」の文字列が入っていないかを判別する
-        if '中' in cancel_word:
-            return True
-        else:
-            round_count += 1
-            return False
-    else:
-        if '中' in cancel_word:
-            return True
-        else:
-            round_count += 1
-
-
 # txtデータを読み込み、excelにデータを記入する
-def generate_one_day_race_result_list(sheet, time, name: str, column_count: int):
-    txtFile = f'../local_boat_data_{time}/{name}.TXT'
+def generate_one_day_race_result_list(
+    sheet,
+    time,
+    name: str,
+    column_count: int,
+):
+    txtFile = f'../local_boat_data/{name}.TXT'
     f = open(txtFile, 'r', encoding='shift_jis')
     datalist = f.readlines()
     f.close()
@@ -208,11 +239,11 @@ def generate_one_day_race_result_list(sheet, time, name: str, column_count: int)
 
     for index, data in enumerate(datalist):
 
-        if '［成績］' in data:
+        if "［成績］" in data:
             c = data.find("［")
             tour_place_list.append(re.sub(r"[\u3000 \t \n]", "", data[:c]))
             tour_name_list.append(
-                re.sub(r"[\u3000 \t \n]", "", datalist[index+4]))
+                re.sub(r"[\u3000 \t \n]", "", datalist[index + 4]))
 
         if 'データは、この場の全レース終了後に登録されます。' in data:
             round_list_by_day.append(-1)
@@ -237,11 +268,9 @@ def generate_one_day_race_result_list(sheet, time, name: str, column_count: int)
             else:
                 if '中' not in cancel_word:
                     round_count += 1
-
         else:
             # 全てのラウンドが中止だったらそのトーナメントのデータをスキップする
             if round_count == -1:
-                # TODO: something
                 print(f'round_count is -1: {index}')
             else:
                 column_count = create_Excel_Data_from_Local_data(
@@ -253,8 +282,9 @@ def generate_one_day_race_result_list(sheet, time, name: str, column_count: int)
                     datalist=datalist,
                 )
 
-    for i, rnd in enumerate(round_list_by_day):
+    for rnd in round_list_by_day:
         if rnd >= 13:
-            round_list_by_day[i] = 12
+            rnd = 12
+
     # 返り値にcolumn_count, round_list_by_dayをかえして全体のカウント数を管理する
     return tour_place_list, tour_name_list, column_count, round_list_by_day

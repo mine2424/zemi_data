@@ -47,7 +47,6 @@ def scraping_odd_weight_data_by_round(roundTag: str):
     detailRound = requested_url(roundTag)
     roundPage = detailRound.find("ul", class_="tab3_tabs")
     if roundPage is None:
-        # TODO: 該当のエラー年月(180224 13/19, 181122 1/13, 190319 4/12, 200318 13/15)
         print(f'round page: {roundPage}')
     else:
         spans = roundPage.find_all("a")
@@ -244,8 +243,7 @@ def scraping_tournament_url_by_day(url: str, round_list_by_day: list):
     pop_elm_count = 0
     print(f'round_list_by_day: {round_list_by_day}')
     print(f'tour_url_list: {tour_url_list}')
-    # TODO: 中止になったデータだけurlがないか、飛ばされているので
-    # 中止となったレース分の時間帯、シリーズの要素を消すようにする(tour_series_list, time_zone_list)
+    # TODO: 中止になったデータだけurlがないか、飛ばされているので、中止となったレース分の時間帯、シリーズの要素を消すようにする(tour_series_list, time_zone_list)
     for i, round_index in enumerate(round_list_by_day):
         if round_index == -1:
             tour_url_list.pop(i - pop_elm_count)

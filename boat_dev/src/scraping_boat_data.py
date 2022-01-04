@@ -5,48 +5,56 @@ import datetime
 from time import sleep
 from urllib.error import HTTPError
 from urllib.error import URLError
+import openpyxl
 
-err_count = 0
+
 def requested_url(reqUrl: str):
+    err_count = 0
     stand_by_sec = 5
     try:
         res = requests.get(reqUrl)
     except HTTPError as e:
-        #エラーの場合の処理
+        # エラーの場合の処理
         print(f'an error ocurred: {e}')
-        
+
     except URLError:
-        #エラーの場合の処理
+        # エラーの場合の処理
         print("URLに接続するが処理できない")
-        
+
     except ConnectionError:
         print("通信エラーです。再接続します。")
         sleep(stand_by_sec)
         requested_url(reqUrl)
         err_count += 1
-        
+
     except ConnectionResetError:
         # TODO: 該当エラー年月（190222 8/13, 190622 9/13）
         print("強制的にssl接続が切断されました。再接続します。")
         sleep(stand_by_sec)
         requested_url(reqUrl)
         err_count += 1
-        
+
     except requests.exceptions.ConnectTimeout:
-        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します",
+              end="",
+              flush=True)
         sleep(stand_by_sec)
         requested_url(reqUrl)
         err_count += 1
-        
+
     except requests.exceptions.ReadTimeout:
-        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+        print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します",
+              end="",
+              flush=True)
         sleep(stand_by_sec)
         requested_url(reqUrl)
         err_count += 1
-        
+
     except:
         if err_count < 2:
-            print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します", end="", flush=True)
+            print(f"\rタイムアウトしました...\n再接続待機中...{stand_by_sec}秒後に再実行します",
+                  end="",
+                  flush=True)
             sleep(stand_by_sec)
             requested_url(reqUrl)
             err_count += 1
@@ -54,12 +62,20 @@ def requested_url(reqUrl: str):
         return BeautifulSoup(res.text, "lxml")
 
 
-def scraping_odd_weight_data_by_round(roundTag: str):
+# オッズと体重のデータをスクレイピングして取得する
+
+
+def scraping_odd_weight_data_by_round(
+    roundTag: str,
+    exfile: str,
+    url: str,
+    column_count: int,
+):
+
     detailRound = requested_url(roundTag)
     roundPage = detailRound.find("ul", class_="tab3_tabs")
     if roundPage is None:
-        # TODO: 該当のエラー年月(180224 13/19, 181122 1/13, 190319 4/12, 200318 13/15)
-        print(f'round page: {roundPage}')
+        print(f'not found round page: {roundPage}')
         return [], []
     else:
         spans = roundPage.find_all("a")
@@ -74,7 +90,7 @@ def scraping_odd_weight_data_by_round(roundTag: str):
 
     oddPage = requested_url(oddUrl)
     if oddPage is None:
-        print(f'oddPage: {oddPage}')
+        print(f'not found oddPage: {oddPage}')
         return [], []
     else:
         oddPoints = oddPage.find_all("td", class_="oddsPoint")
@@ -88,27 +104,43 @@ def scraping_odd_weight_data_by_round(roundTag: str):
 
     detailInfoPage = requested_url(oddAndInfoUrlList[1])
     if detailInfoPage is None:
-        print(f'detailInfoPage: {detailInfoPage}')
+        print(f'not found detailInfoPage: {detailInfoPage}')
         return oddPointsList, weightList
     else:
         weightPage = detailInfoPage.find("table", class_="is-w748")
 
-    # TODO: 該当のエラー年月(180320 8/12, 180721 3/13, 200222 7/14, 201121 4/15)
     if weightPage is None:
-        print(f'weight page: {weightPage}')
+        print(f'not found weight page: {weightPage}')
         return oddPointsList, weightList
     else:
         weightTable = weightPage.find_all("td")
-    
+
         for weight in weightTable:
             if "kg" in weight.text:
                 weightList.append(weight.text)
+
+    # oddlistとweightlistの数が合わなかった場合、oddlistでの欠場とweightlistの空白を埋め合わせる
+    # TODO: 欠場なのに判別されずそのまま次の選手の物が挿入されているのを修正する。(仮に欠場の文字があっても飛ばされた場合の対処をどうするのか？)
+    if len(oddPointsList) != len(weightList):
+        print("not collect list length")
+        for i, odd_elm in enumerate(oddPointsList):
+            if odd_elm == "欠場":
+                weightList.insert(i," ")
+
+    if len(oddPointsList) != len(weightList):
+        print(f"twice not collect length")
+        print(f"odd: {oddPointsList}, weight: {weightList}")
 
     return oddPointsList, weightList
 
 
 # １トーナメント単位でoddとweightをexcelに記入する
-def scraping_one_tournament(sheet, url: str, columnCount: int):
+def write_odd_and_weight_for_excel(
+    sheet,
+    url: str,
+    columnCount: int,
+    exfile: str,
+):
     html = requested_url(url)
 
     # HACK: そもそもfindでtable1が見つかっていないのでその続きのfind_allがエラーを返してしまう。
@@ -118,6 +150,7 @@ def scraping_one_tournament(sheet, url: str, columnCount: int):
     odd_weight_data_list = []
     # find_allでNoneだったらその分スキップさせる
     if table1 == None or table1 == 0:
+        # 一大会分がないので何も対処する必要はない
         print('this round is none')
     else:
         round_url_list = table1.find_all('td', class_="is-fs14 is-fBold")
@@ -127,13 +160,19 @@ def scraping_one_tournament(sheet, url: str, columnCount: int):
 
         # oddとinfoのurl取得
         for raceRound in roundTagList:
-            odd_weight_data = scraping_odd_weight_data_by_round(raceRound)
+            odd_weight_data = scraping_odd_weight_data_by_round(
+                raceRound,
+                exfile,
+                url,
+                columnCount,
+            )
             odd_weight_data_list.append(odd_weight_data)
 
         # 1Race、１ループ
         for result in odd_weight_data_list:
             odds = result[0]
             weights = result[1]
+            # TODO: おそらく欠場等があれば過不足状態となっている（６以外）のでそれの分を対処する
 
             for odd in odds:
                 # その位置の艇番
@@ -168,20 +207,21 @@ def generate_all_tournament_url(start: datetime.date, end: datetime.date):
         if current_time == end:
             break
         current_time += datetime.timedelta(days=1)
-    
+
     all_tour_url_list_by_month = []
     tour_url_list_by_month = []
-    
+
     preMonth = tour_url_list[0][-4:-2]
-    
+
     for i in range(len(tour_url_list)):
         if tour_url_list[i][-4:-2] != preMonth:
             all_tour_url_list_by_month.append(tour_url_list_by_month)
-            
+
             tour_url_list_by_month = []
             tour_url_list_by_month.append(tour_url_list[i])
-        elif i == len(tour_url_list)-1:
-            tour_url_list_by_month.append(tour_url_list[len(tour_url_list)-1])
+        elif i == len(tour_url_list) - 1:
+            tour_url_list_by_month.append(tour_url_list[len(tour_url_list) -
+                                                        1])
             all_tour_url_list_by_month.append(tour_url_list_by_month)
         else:
             tour_url_list_by_month.append(tour_url_list[i])
@@ -272,7 +312,5 @@ def scraping_tournament_url_by_day(url: str, round_list_by_day: list):
             tour_series_list.pop(i - pop_elm_count)
             time_zone_list.pop(i - pop_elm_count)
             pop_elm_count += 1
-    
-    print(f'rank_list: {rank_list}')
 
     return tour_url_list, rank_list, tour_series_list, time_zone_list

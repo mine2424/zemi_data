@@ -3,9 +3,17 @@ import openpyxl
 
 # =========== other def =============================================
 
-# BUG: round 13 を修正する
 # round_list_by_day: [12, 12, 12, 12, 12, 13, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
-def generate_other_boat_data(pre_tour_count: int, tour_place_list: list, tour_name_list: list, reservedRaceRank: list, roundIndexList: list, time_zone_list: list, tour_series_list: list, sheet):
+def generate_other_boat_data(
+    pre_tour_count: int, 
+    tour_place_list: list, 
+    tour_name_list: list, 
+    reservedRaceRank: list, 
+    roundIndexList: list, 
+    time_zone_list: list, 
+    tour_series_list: list, 
+    sheet
+):
     raceRankDict = {
         "SG": [1, 0, 0, 0, 0],
         "G1": [0, 1, 0, 0, 0],
@@ -30,7 +38,6 @@ def generate_other_boat_data(pre_tour_count: int, tour_place_list: list, tour_na
 
     tourCount = 0
     tourSum = pre_tour_count
-
     
     if len(roundIndexList) == 0:
         for i in range(len(roundIndexList)):
@@ -39,33 +46,34 @@ def generate_other_boat_data(pre_tour_count: int, tour_place_list: list, tour_na
 
     # 個々のfor,if文等のセクションでどのような処理が行われているか見ること。
     # 各大会の「地名」「大会名」がワンセットのリストを分解して（回して）いる。
+    print(f"tour_place_list: {tour_place_list},roundIndexList: {roundIndexList}, len(tour_place_list): {len(tour_place_list)}, len(roundIndexList): {len(roundIndexList)}")
     for index in range(len(tour_place_list)):
         # 最後のカラムのインデックスからその先の次のレースの分まで回転する。
         if roundIndexList[index] != -1:
             addedTourSum = tourSum + (int(roundIndexList[index]) * 6)
+            print(f"roundIndexList[index]: {roundIndexList[index]}, add - pre: {addedTourSum-tourSum}")
             for i in range(tourSum, addedTourSum):
                 if tourCount >= 2:
                     i = i - (2 * tourCount) + 2
                 # 開催場所
-                sheet.cell(row=i, column=21).value = tour_place_list[index]
+                sheet.cell(row=i, column=22).value = tour_place_list[index]
                 # 大会名
-                sheet.cell(row=i, column=22).value = tour_name_list[index]
+                sheet.cell(row=i, column=23).value = tour_name_list[index]
                 
-                # TODO: 該当のエラー年月(180417 13/13, 180919 7/9, 181226 12/12 190416 12/12, 190807 12/12, 190918 12/12, 191128 12/12, 200421 12/12, keyError: None)
                 currentRaceRank = reservedRaceRank[tourCount]
                 if currentRaceRank != None:
                     for j in range(len(raceRankDict[currentRaceRank])):
                         sheet.cell(
                             row=i,
-                            column=23 + j
+                            column=24 + j
                         ).value = raceRankDict[currentRaceRank][j]
                 # 時間帯、シリーズのダミー変数をExcelに挿入
                 current_time_zone = time_zone_list[tourCount]
                 current_tour_series = tour_series_list[tourCount]
                 sheet.cell(
-                    row=i, column=28).value = time_zone_dict[current_time_zone]
+                    row=i, column=29).value = time_zone_dict[current_time_zone]
                 sheet.cell(
-                    row=i, column=29).value = tour_series_dict[current_tour_series]
+                    row=i, column=30).value = tour_series_dict[current_tour_series]
 
             tourCount += 1
             if index == 0:
